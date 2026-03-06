@@ -282,6 +282,14 @@
   }
   .doc-page .compiler-block p { margin: 0; text-align: left; }
 
+  .doc-page .policy-entry {
+    margin-bottom: 14px;
+    page-break-inside: avoid;
+  }
+  .doc-page .policy-entry .underline-heading {
+    margin-top: 10px;
+  }
+
   .page-number {
     position: absolute; bottom: 24px; right: 40px;
     font-family: 'DM Sans', sans-serif;
@@ -1106,8 +1114,64 @@ function generateDoc() {
     <div class="page-number">${pg4}</div>
   </div>`;
 
+  // ── PAGE 5+: ACCOUNTING POLICIES ──
+  // Collect selected policies
+  const selectedPolicies = accountingPolicies.filter(p => {
+    const cb = document.getElementById(p.id);
+    return cb && cb.checked;
+  });
+
+  // Page header helper for notes pages
+  function notesPageHeader() {
+    return `
+    <div class="page-header">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Registration Number ${reg})</div>
+    </div>
+    <h2>NOTES FOR THE YEAR ENDED ${yearEnd.toUpperCase()}</h2>`;
+  }
+
+  // Build policy pages — paginate by estimated content weight
+  // Each policy gets a "weight": short = 1, long (contains <br>) = 2
+  const ITEMS_PER_PAGE = 5;
+  let policyPages = '';
+  let currentPageItems = [];
+  let pgNum = 5;
+
+  function flushPolicyPage(items, pageNum) {
+    if (!items.length) return '';
+    let content = items.map(p => `
+      <div class="policy-entry">
+        <p class="underline-heading">${p.label}</p>
+        <p>${p.text}</p>
+      </div>`).join('');
+    return `
+  <div class="doc-page">
+    ${notesPageHeader()}
+    ${content}
+    <div class="page-number">${pageNum}</div>
+  </div>`;
+  }
+
+  if (selectedPolicies.length > 0) {
+    let weight = 0;
+    for (const p of selectedPolicies) {
+      const pWeight = (p.text.match(/<br>/g) || []).length > 3 ? 3 : (p.text.match(/<br>/g) || []).length > 0 ? 2 : 1;
+      if (weight + pWeight > 8 && currentPageItems.length > 0) {
+        policyPages += flushPolicyPage(currentPageItems, pgNum++);
+        currentPageItems = [];
+        weight = 0;
+      }
+      currentPageItems.push(p);
+      weight += pWeight;
+    }
+    if (currentPageItems.length > 0) {
+      policyPages += flushPolicyPage(currentPageItems, pgNum++);
+    }
+  }
+
   const output = document.getElementById('document-output');
-  output.innerHTML = page1 + page2 + page3 + page4;
+  output.innerHTML = page1 + page2 + page3 + page4 + policyPages;
   output.classList.add('visible');
 
   document.getElementById('placeholder').style.display = 'none';
