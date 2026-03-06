@@ -500,11 +500,29 @@
     </div>
 
     <div class="field-group">
-      <label>Profit or Loss after Tax (R)</label>
+      <label>Current Year — Profit or Loss?</label>
+      <div class="options-group" style="margin-bottom:8px;">
+        <label class="option-pill">
+          <input type="radio" name="plType" value="profit" checked onchange="liveUpdate()"> Profit
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="plType" value="loss" onchange="liveUpdate()"> Loss
+        </label>
+      </div>
+      <label style="margin-top:4px;">Amount after Tax (R)</label>
       <input type="text" id="profitLoss" placeholder="e.g. 306.98" oninput="liveUpdate()">
     </div>
     <div class="field-group">
-      <label>Profit or Loss — Previous Year (R)</label>
+      <label>Previous Year — Profit or Loss?</label>
+      <div class="options-group" style="margin-bottom:8px;">
+        <label class="option-pill">
+          <input type="radio" name="prevPlType" value="profit" checked onchange="liveUpdate()"> Profit
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="prevPlType" value="loss" onchange="liveUpdate()"> Loss
+        </label>
+      </div>
+      <label style="margin-top:4px;">Amount — Previous Year (R)</label>
       <input type="text" id="prevProfitLoss" placeholder="e.g. 2365.81" oninput="liveUpdate()">
     </div>
     <div class="field-group">
@@ -711,6 +729,8 @@ function generateDoc() {
   // Number formatting
   const profitLoss     = formatNumber(getVal('profitLoss'))     || '[PROFIT/LOSS]';
   const prevProfitLoss = formatNumber(getVal('prevProfitLoss')) || '[PREV PROFIT/LOSS]';
+  const plType     = getRadio('plType')     || 'profit';
+  const prevPlType = getRadio('prevPlType') || 'profit';
   const dividendAmount = formatNumber(getVal('dividendAmount')) || '[AMOUNT]';
 
   // Compiler/signer — normalise from select value (already uppercase)
@@ -877,7 +897,7 @@ function generateDoc() {
     <p>${shareCapitalSentence}</p>
     <p>${dividendSentence}</p>
     <p>${fixedAssetsSentence}</p>
-    <p>The company realised a profit/loss after tax of R&nbsp;${profitLoss} for the year ended ${yearEnd} (${prevYearEnd} — profit/loss of R&nbsp;${prevProfitLoss}). ${bodyTerm} expect that the company will ${outlookText}. Accordingly the annual financial statements of the company are prepared on the basis of accounting policies applicable to a going concern.</p>
+    <p>The company realised a ${plType} after tax of R&nbsp;${profitLoss} for the year ended ${yearEnd} (${prevYearEnd} — ${prevPlType} of R&nbsp;${prevProfitLoss}). ${bodyTerm} expect that the company will ${outlookText}. Accordingly the annual financial statements of the company are prepared on the basis of accounting policies applicable to a going concern.</p>
     <p>The ${pluralTerm.toLowerCase()} of the company ${dirSingularPlural.isAre}: ${dirList}</p>
     <p>The postal address is: ${postal}</p>
     <p>The registered address is: ${regAddr}</p>
