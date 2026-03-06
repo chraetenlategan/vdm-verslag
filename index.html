@@ -296,6 +296,94 @@
     font-size: 9pt; color: #999;
   }
 
+  /* ── COVER PAGE ── */
+  .cover-page {
+    background: var(--white);
+    width: 100%;
+    max-width: 740px;
+    margin: 0 auto 32px;
+    padding: 52px 64px 48px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    font-family: 'Libre Baskerville', serif;
+    font-size: 9.5pt;
+    line-height: 1.55;
+    color: #111;
+    position: relative;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-title-block {
+    text-align: center;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #111;
+  }
+  .cover-title-block .co-name {
+    font-size: 14pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .cover-title-block .co-reg {
+    font-size: 10pt;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .cover-title-block .cover-year {
+    font-size: 11pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-top: 8px;
+  }
+  .cover-title-block .cover-subtitle {
+    font-size: 10pt;
+    margin-top: 4px;
+    letter-spacing: 0.03em;
+  }
+  .cover-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin-top: 8px;
+  }
+  .cover-info-table tr {
+    border-bottom: 0.5px solid #ddd;
+  }
+  .cover-info-table td {
+    padding: 7px 4px;
+    vertical-align: top;
+  }
+  .cover-info-table td:first-child {
+    font-weight: 700;
+    width: 46%;
+    color: #222;
+  }
+  .cover-info-table td:last-child {
+    color: #333;
+  }
+  .cover-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #ccc;
+    font-size: 8.5pt;
+    color: #555;
+    text-align: center;
+  }
+
+  @media print {
+    .cover-page {
+      box-shadow: none;
+      margin: 0;
+      page-break-after: always;
+      max-width: 100%;
+      width: 100%;
+      padding: 18mm 20mm 16mm;
+      min-height: unset;
+    }
+  }
+
   .highlighted { background: #fffbe6; }
 
   /* ── POLICY CHECKLIST ── */
@@ -486,6 +574,16 @@
     </div>
 
     <div class="field-group">
+      <label>Business Address (if different from registered)</label>
+      <input type="text" id="businessAddress" placeholder="e.g. 40 Geelhout Crescent, Flora Park, 2430" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Bank</label>
+      <input type="text" id="bankName" placeholder="e.g. Standard Bank" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
       <label>Date Financial Statements Approved</label>
       <input type="text" id="dateApproved" placeholder="e.g. 19 January 2025" oninput="liveUpdate()">
     </div>
@@ -493,6 +591,11 @@
     <div class="field-group">
       <label>Date Signed by Compiler</label>
       <input type="text" id="dateSigned" placeholder="e.g. 2025.01.19" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Date of Issue (cover page)</label>
+      <input type="text" id="dateOfIssue" placeholder="e.g. 2 February 2026" oninput="liveUpdate()">
     </div>
 
     <div class="field-group">
@@ -871,13 +974,17 @@ function addDirector() {
   entry.innerHTML = `
     <div class="field-group" style="margin-bottom:0">
       <label style="margin-bottom:4px">Initials</label>
-      <input type="text" id="dir-init-${id}" placeholder="e.g. DT" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
+      <input type="text" id="dir-init-${id}" placeholder="e.g. LJ" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
     </div>
     <div class="field-group" style="margin-bottom:0">
       <label style="margin-bottom:4px">Surname</label>
-      <input type="text" id="dir-sur-${id}" placeholder="e.g. Boardman" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
+      <input type="text" id="dir-sur-${id}" placeholder="e.g. Mthembu" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
     </div>
     <button class="btn-remove" onclick="removeDirector(${id})" title="Remove">×</button>
+    <div class="field-group" style="margin-bottom:0; grid-column:1/-1;">
+      <label style="margin-bottom:4px">ID Number (optional)</label>
+      <input type="text" id="dir-id-${id}" placeholder="e.g. 600124 5672 08 6" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
+    </div>
   `;
   list.appendChild(entry);
 }
@@ -890,10 +997,10 @@ function removeDirector(id) {
 
 function getDirectors() {
   return directors.map(d => {
-    // .toUpperCase() normalises regardless of caps lock state
     const init = (document.getElementById(`dir-init-${d.id}`)?.value || '').trim().toUpperCase();
     const sur  = (document.getElementById(`dir-sur-${d.id}`)?.value  || '').trim().toUpperCase();
-    return { init, sur, full: init && sur ? `${init} ${sur}` : '' };
+    const idNo = (document.getElementById(`dir-id-${d.id}`)?.value   || '').trim();
+    return { init, sur, full: init && sur ? `${init} ${sur}` : '', idNo };
   }).filter(d => d.full);
 }
 
@@ -923,8 +1030,11 @@ function generateDoc() {
   const income      = getVal('mainIncome')  || '[MAIN INCOME SOURCE]';
   const postal      = getVal('postalAddress') || '[POSTAL ADDRESS]';
   const regAddr     = getVal('regAddress')  || '[REGISTERED ADDRESS]';
+  const businessAddr = getVal('businessAddress') || '';
+  const bankName    = getVal('bankName')    || '[BANK]';
   const dateApproved = getVal('dateApproved') || '[DATE APPROVED]';
   const dateSigned  = getVal('dateSigned')  || '[DATE SIGNED]';
+  const dateOfIssue = getVal('dateOfIssue') || '[DATE OF ISSUE]';
   const pageStart   = getVal('pageStart')   || '5';
   const pageEnd     = getVal('pageEnd')     || '12';
   const parentName  = getVal('parentName')  || '[PARENT COMPANY]';
@@ -988,7 +1098,7 @@ function generateDoc() {
   if (parentCo === 'none') parentSentence = `The company has no parent company in or outside the Republic.`;
   else parentSentence = `The company's parent company is ${parentName}.`;
 
-  // Report section heading numbers
+  // Report section heading numbers (cover = 0, then 1–4, policies from 5)
   const pg1 = 1, pg2 = 2, pg3 = 3, pg4 = 4;
 
   // Signature blocks for directors
@@ -1016,6 +1126,82 @@ function generateDoc() {
       <p>${date}</p>
     </div>`;
   }
+
+  // Preparer sentence based on compiler signer
+  const preparerMap = {
+    'L VAN DER MERWE':  'The financial statements were prepared under the supervision of Leon van der Merwe BComm. Honns. CA (SA) in his capacity as an independent professional accountant.',
+    'HL VAN DER MERWE': 'The financial statements were prepared under the supervision of Hendrik Leon van der Merwe BAcc PG DIP AAS CA (SA) in his capacity as an independent professional accountant.',
+    'R DE BEER':        'The financial statements were prepared under the supervision of Reinette de Beer BCompt PGDIP AAS CA (SA) in her capacity as an independent professional accountant.',
+    'R WOLMARANS':      'The financial statements were prepared under the supervision of Riekie Wolmarans BCompt FAC (Cum Laude) PGDA CA (SA) in her capacity as an independent professional accountant.',
+  };
+  const preparerSentence = preparerMap[compilerSigner] || '';
+
+  // Director rows for cover page (Initials Surname – ID if provided)
+  const directorCoverRows = dirs.length
+    ? dirs.map(d => d.idNo ? `${d.full} – ${d.idNo}` : d.full).join('<br>')
+    : '[DIRECTOR NAMES]';
+
+  // ── PAGE 0: COVER PAGE ──
+  const coverPage = `
+  <div class="cover-page">
+    <div class="cover-title-block">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Registration Number ${reg})</div>
+      <div class="cover-year">ANNUAL FINANCIAL STATEMENTS</div>
+      <div class="cover-subtitle">For the year ended ${yearEnd}</div>
+    </div>
+
+    <h2 style="font-family:'Libre Baskerville',serif;font-size:10pt;text-align:center;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 16px;font-weight:700;">General Information</h2>
+
+    <table class="cover-info-table">
+      <tr>
+        <td>Country of Incorporation and Domicile</td>
+        <td>South Africa</td>
+      </tr>
+      <tr>
+        <td>Registration Number</td>
+        <td>${reg}</td>
+      </tr>
+      <tr>
+        <td>Nature of Business and Principal Activities</td>
+        <td>${nature}${income && income !== nature ? ' — ' + income : ''}</td>
+      </tr>
+      <tr>
+        <td>${pluralTerm}</td>
+        <td>${directorCoverRows}</td>
+      </tr>
+      <tr>
+        <td>Registered Office</td>
+        <td>${regAddr}</td>
+      </tr>
+      ${businessAddr ? `<tr><td>Business Address</td><td>${businessAddr}</td></tr>` : ''}
+      <tr>
+        <td>Postal Address</td>
+        <td>${postal}</td>
+      </tr>
+      <tr>
+        <td>Bank</td>
+        <td>${bankName}</td>
+      </tr>
+      <tr>
+        <td>Reporting Currency</td>
+        <td>South African Rand</td>
+      </tr>
+      <tr>
+        <td>Compiler</td>
+        <td>VDM Chartered Accountants</td>
+      </tr>
+      ${preparerSentence ? `<tr><td>Preparer</td><td>${preparerSentence}</td></tr>` : ''}
+      <tr>
+        <td>Issued</td>
+        <td>${dateOfIssue}</td>
+      </tr>
+    </table>
+
+    <div class="cover-footer">
+      VDM Chartered Accountants &nbsp;·&nbsp; Standerton
+    </div>
+  </div>`;
 
   // ── PAGE 1: CA DECLARATION ──
   const page1 = `
@@ -1171,7 +1357,7 @@ function generateDoc() {
   }
 
   const output = document.getElementById('document-output');
-  output.innerHTML = page1 + page2 + page3 + page4 + policyPages;
+  output.innerHTML = coverPage + page1 + page2 + page3 + page4 + policyPages;
   output.classList.add('visible');
 
   document.getElementById('placeholder').style.display = 'none';
