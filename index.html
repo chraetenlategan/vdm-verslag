@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VDM — Financial Statement Policy Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-light: #4a4a6a;
+    --gold: #c9a84c;
+    --gold-light: #f0dfa0;
+    --cream: #faf8f3;
+    --white: #ffffff;
+    --border: #e2ddd3;
+    --success: #2d7a4f;
+    --panel: #f4f1ea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .logo-mark {
+    width: 48px; height: 48px;
+    background: var(--gold);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 20px; font-weight: 400;
+    color: var(--white);
+    letter-spacing: 0.02em;
+  }
+  header p {
+    font-size: 12px; color: #8888aa; margin-top: 2px; letter-spacing: 0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .app {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    min-height: calc(100vh - 91px);
+  }
+
+  /* ── FORM PANEL ── */
+  .form-panel {
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    padding: 36px 32px;
+    overflow-y: auto;
+    max-height: calc(100vh - 91px);
+    position: sticky;
+    top: 0;
+  }
+
+  .step-label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 6px;
+  }
+  .section-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 17px; color: var(--ink); margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-group { margin-bottom: 18px; }
+  .field-group label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--ink-light); letter-spacing: 0.04em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .field-group input,
+  .field-group select,
+  .field-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--ink);
+    background: var(--cream);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .field-group input:focus,
+  .field-group select:focus,
+  .field-group textarea:focus {
+    border-color: var(--gold);
+    background: var(--white);
+  }
+  .field-group textarea { resize: vertical; min-height: 72px; }
+
+  .form-divider {
+    margin: 24px 0 20px;
+    border: none; border-top: 1px solid var(--border);
+  }
+
+  /* directors dynamic list */
+  .director-entry {
+    display: grid; grid-template-columns: 1fr 1fr auto;
+    gap: 8px; align-items: end; margin-bottom: 8px;
+  }
+  .director-entry input { margin-bottom: 0; }
+  .btn-remove {
+    width: 36px; height: 38px; border: 1.5px solid #e0d0d0;
+    background: #fff5f5; border-radius: 6px;
+    color: #cc4444; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-remove:hover { background: #ffe0e0; }
+  .btn-add {
+    width: 100%; padding: 9px; border: 1.5px dashed var(--border);
+    background: transparent; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--ink-light); cursor: pointer; margin-top: 4px;
+    transition: all 0.15s;
+  }
+  .btn-add:hover { border-color: var(--gold); color: var(--gold); background: #fffbf0; }
+
+  /* options group */
+  .options-group { display: flex; flex-direction: column; gap: 8px; }
+  .option-pill {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    transition: all 0.15s; font-size: 14px;
+  }
+  .option-pill input[type=radio] { accent-color: var(--gold); width: 16px; height: 16px; }
+  .option-pill:has(input:checked) {
+    border-color: var(--gold); background: #fffbf0;
+    font-weight: 500;
+  }
+
+  /* conditional block */
+  .conditional { display: none; }
+  .conditional.visible { display: block; }
+
+  .hint {
+    font-size: 11px; color: #9090b0; margin-top: 4px; font-style: italic;
+  }
+
+  /* generate button */
+  .btn-generate {
+    width: 100%; padding: 14px;
+    background: var(--ink); color: var(--white);
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 24px;
+    letter-spacing: 0.02em;
+    transition: background 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .btn-generate:hover { background: #2a2a50; }
+  .btn-generate::after {
+    content: '';
+    position: absolute; left: 0; top: 0;
+    width: 4px; height: 100%;
+    background: var(--gold);
+  }
+
+  .btn-print {
+    width: 100%; padding: 11px;
+    background: var(--success); color: var(--white);
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 10px;
+    transition: background 0.2s; display: none;
+  }
+  .btn-print:hover { background: #1f5c3a; }
+  .btn-print.visible { display: block; }
+
+  /* ── PREVIEW PANEL ── */
+  .preview-panel {
+    background: #e8e4dc;
+    padding: 40px;
+    overflow-y: auto;
+    max-height: calc(100vh - 91px);
+  }
+
+  .preview-placeholder {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; min-height: 400px;
+    text-align: center; color: #9090a8;
+  }
+  .preview-placeholder svg { opacity: 0.3; margin-bottom: 16px; }
+  .preview-placeholder h3 { font-family: 'Libre Baskerville', serif; font-size: 18px; margin-bottom: 8px; }
+  .preview-placeholder p { font-size: 13px; }
+
+  /* ── DOCUMENT PAGES ── */
+  #document-output { display: none; }
+  #document-output.visible { display: block; }
+
+  .doc-page {
+    background: var(--white);
+    width: 100%;
+    max-width: 740px;
+    margin: 0 auto 32px;
+    padding: 72px 80px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    font-family: 'Libre Baskerville', serif;
+    font-size: 10.5pt;
+    line-height: 1.75;
+    color: #111;
+    position: relative;
+  }
+
+  .doc-page .page-header {
+    text-align: center; margin-bottom: 32px;
+    padding-bottom: 20px; border-bottom: 0.5px solid #bbb;
+  }
+  .doc-page .co-name {
+    font-size: 13pt; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 4px;
+  }
+  .doc-page .co-reg {
+    font-size: 10pt; font-style: italic;
+  }
+
+  .doc-page h2 {
+    font-size: 11pt; text-align: center; text-transform: uppercase;
+    letter-spacing: 0.08em; margin: 24px 0 20px;
+    font-weight: 700;
+  }
+  .doc-page h3 {
+    font-size: 10.5pt; font-style: italic; font-weight: 700;
+    margin: 18px 0 8px;
+  }
+  .doc-page p { margin-bottom: 12px; text-align: justify; }
+  .doc-page ul {
+    margin: 8px 0 12px 24px;
+  }
+  .doc-page ul li { margin-bottom: 8px; text-align: justify; }
+
+  .doc-page .underline-heading {
+    font-size: 10.5pt; font-weight: 700; text-decoration: underline;
+    margin: 18px 0 10px; text-transform: uppercase;
+    font-style: normal;
+  }
+
+  .doc-page .signature-block {
+    margin-top: 48px;
+  }
+  .doc-page .sig-line {
+    display: inline-block;
+    width: 220px; border-bottom: 1px solid #333;
+    margin-right: 40px; margin-bottom: 24px;
+  }
+  .doc-page .sig-name {
+    font-weight: 700; font-size: 10pt;
+    text-transform: uppercase; margin-top: 4px;
+  }
+
+  .doc-page .compiler-block {
+    margin-top: 40px;
+    font-weight: 700;
+  }
+  .doc-page .compiler-block p { margin: 0; text-align: left; }
+
+  .page-number {
+    position: absolute; bottom: 32px; right: 48px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9pt; color: #999;
+  }
+
+  .highlighted { background: #fffbe6; }
+
+  /* ── PRINT ── */
+  @media print {
+    header, .form-panel, .preview-placeholder { display: none !important; }
+    .app { display: block; }
+    .preview-panel {
+      background: white; padding: 0; max-height: none; overflow: visible;
+    }
+    .doc-page {
+      box-shadow: none; margin: 0; page-break-after: always;
+      max-width: 100%;
+    }
+    #document-output { display: block !important; }
+    .btn-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">V</div>
+  <div>
+    <h1>Financial Statement Policy Generator</h1>
+    <p>VDM CHARTERED ACCOUNTANTS &nbsp;·&nbsp; STANDERTON</p>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- ══════════════ FORM PANEL ══════════════ -->
+  <div class="form-panel">
+
+    <div class="step-label">Step 1</div>
+    <div class="section-title">Entity Details</div>
+
+    <div class="field-group">
+      <label>Company Name (as it appears on documents)</label>
+      <input type="text" id="companyName" placeholder="e.g. Aruba 33 (Proprietary) Limited" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Registration Number</label>
+      <input type="text" id="regNumber" placeholder="e.g. 2002/002880/07" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Financial Year End</label>
+      <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Previous Year End</label>
+      <input type="text" id="prevYearEnd" placeholder="e.g. 28 February 2024" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Nature of Business</label>
+      <input type="text" id="natureBusiness" placeholder="e.g. rental of property" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Main Source of Income</label>
+      <input type="text" id="mainIncome" placeholder="e.g. rent received" oninput="liveUpdate()">
+    </div>
+
+    <hr class="form-divider">
+    <div class="step-label">Step 2</div>
+    <div class="section-title">Entity &amp; Report Type</div>
+
+    <div class="field-group">
+      <label>Entity Type</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="entityType" value="company" checked onchange="updateEntityType()"> Company (Pty) Ltd — Directors
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="entityType" value="cc" onchange="updateEntityType()"> Close Corporation (CC) — Members
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="entityType" value="trust" onchange="updateEntityType()"> Trust — Trustees
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Report Type</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="reportType" value="compilation" checked onchange="liveUpdate()"> Independent Compilation
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="reportType" value="review" onchange="liveUpdate()"> Independent Review
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="reportType" value="audit" onchange="liveUpdate()"> Audit
+        </label>
+      </div>
+      <p class="hint">Only Compilation is fully implemented in this version.</p>
+    </div>
+
+    <hr class="form-divider">
+    <div class="step-label">Step 3</div>
+    <div class="section-title" id="directors-section-title">Directors</div>
+
+    <div id="directors-list"></div>
+    <button class="btn-add" onclick="addDirector()">+ Add Director / Member / Trustee</button>
+
+    <hr class="form-divider">
+    <div class="step-label">Step 4</div>
+    <div class="section-title">Addresses &amp; Dates</div>
+
+    <div class="field-group">
+      <label>Postal Address</label>
+      <input type="text" id="postalAddress" placeholder="e.g. PO Box 450, Standerton, 2430" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Registered / Physical Address</label>
+      <input type="text" id="regAddress" placeholder="e.g. 26A Kerk Street, Standerton, 2430" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Date Financial Statements Approved</label>
+      <input type="text" id="dateApproved" placeholder="e.g. 19 January 2025" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Date Signed by Compiler</label>
+      <input type="text" id="dateSigned" placeholder="e.g. 2025.01.19" oninput="liveUpdate()">
+    </div>
+
+    <hr class="form-divider">
+    <div class="step-label">Step 5</div>
+    <div class="section-title">Specific Matters (Directors' Report)</div>
+
+    <div class="field-group">
+      <label>Share Capital Changes</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="shareCapital" value="nochange" checked onchange="liveUpdate()"> No changes in authorised or issued share capital
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="shareCapital" value="issued" onchange="liveUpdate()"> Shares and share capital were issued
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="shareCapital" value="noconsideration" onchange="liveUpdate()"> Shares authorised and issued for no consideration
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Dividends</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="dividends" value="none" checked onchange="updateDividend()"> No dividend declared or paid
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="dividends" value="declared" onchange="updateDividend()"> Dividend declared/paid
+        </label>
+      </div>
+    </div>
+    <div class="conditional field-group" id="dividend-amount-group">
+      <label>Dividend Amount (R)</label>
+      <input type="text" id="dividendAmount" placeholder="e.g. 60,000.00" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Fixed Assets Policy Change</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="fixedAssets" value="nochange" checked onchange="liveUpdate()"> No major change in fixed assets or policy
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="fixedAssets" value="change" onchange="liveUpdate()"> Change to accounting policy on fixed assets
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Profit or Loss after Tax (R)</label>
+      <input type="text" id="profitLoss" placeholder="e.g. 306.98" oninput="liveUpdate()">
+    </div>
+    <div class="field-group">
+      <label>Profit or Loss — Previous Year (R)</label>
+      <input type="text" id="prevProfitLoss" placeholder="e.g. 2,365.81" oninput="liveUpdate()">
+    </div>
+    <div class="field-group">
+      <label>Future Outlook</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="outlook" value="continue" checked onchange="liveUpdate()"> Continue to be profitable
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="outlook" value="future" onchange="liveUpdate()"> Be profitable in future
+        </label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Parent Company</label>
+      <div class="options-group">
+        <label class="option-pill">
+          <input type="radio" name="parentCo" value="none" checked onchange="updateParent()"> No parent company
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="parentCo" value="has" onchange="updateParent()"> Has parent company
+        </label>
+      </div>
+    </div>
+    <div class="conditional field-group" id="parent-group">
+      <label>Parent Company Name &amp; Registration</label>
+      <input type="text" id="parentName" placeholder="e.g. Niclotte (Proprietary) Limited, (Registration number - 1997/007124/07)" oninput="liveUpdate()">
+    </div>
+
+    <div class="field-group">
+      <label>Page References (financial statements start on page)</label>
+      <input type="text" id="pageStart" placeholder="e.g. 5" oninput="liveUpdate()" value="5">
+      <p class="hint">The policies will show "pages 4 to [X]" — adjust as needed.</p>
+    </div>
+    <div class="field-group">
+      <label>Page References (financial statements end on page)</label>
+      <input type="text" id="pageEnd" placeholder="e.g. 12" oninput="liveUpdate()" value="12">
+    </div>
+
+    <button class="btn-generate" onclick="generateDoc()">Generate Policy Document</button>
+    <button class="btn-print" id="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
+
+  </div>
+
+  <!-- ══════════════ PREVIEW PANEL ══════════════ -->
+  <div class="preview-panel">
+
+    <div class="preview-placeholder" id="placeholder">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <h3>Fill in the form to generate</h3>
+      <p>Your completed policy document will appear here,<br>ready to print or save as PDF.</p>
+    </div>
+
+    <div id="document-output"></div>
+
+  </div>
+</div>
+
+<script>
+// ── State ──
+let directors = [];
+let directorCount = 0;
+
+// ── Init ──
+addDirector();
+addDirector();
+
+function getVal(id) { return (document.getElementById(id)?.value || '').trim(); }
+function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
+
+function getEntityTerms() {
+  const type = getRadio('entityType');
+  if (type === 'cc') return { plural: 'Members', singular: 'Member', pronoun: 'their', body: 'The members', report_to: 'Members', act: 'Close Corporations Act 69 of 1984', role: 'member' };
+  if (type === 'trust') return { plural: 'Trustees', singular: 'Trustee', pronoun: 'their', body: 'The trustees', report_to: 'Trustees', act: 'Trust Property Control Act 57 of 1988', role: 'trustee' };
+  return { plural: 'Directors', singular: 'Director', pronoun: 'their', body: 'The directors', report_to: 'Shareholders', act: 'Companies Act 71 of 2008', role: 'director' };
+}
+
+function updateEntityType() {
+  const terms = getEntityTerms();
+  document.getElementById('directors-section-title').textContent = terms.plural;
+  liveUpdate();
+}
+
+function updateDividend() {
+  const val = getRadio('dividends');
+  const group = document.getElementById('dividend-amount-group');
+  group.classList.toggle('visible', val === 'declared');
+  liveUpdate();
+}
+
+function updateParent() {
+  const val = getRadio('parentCo');
+  document.getElementById('parent-group').classList.toggle('visible', val === 'has');
+  liveUpdate();
+}
+
+function addDirector() {
+  directorCount++;
+  const id = directorCount;
+  directors.push({ id, initials: '', surname: '' });
+
+  const list = document.getElementById('directors-list');
+  const entry = document.createElement('div');
+  entry.className = 'director-entry';
+  entry.id = `dir-entry-${id}`;
+  entry.innerHTML = `
+    <div class="field-group" style="margin-bottom:0">
+      <label style="margin-bottom:4px">Initials</label>
+      <input type="text" id="dir-init-${id}" placeholder="e.g. DT" oninput="liveUpdate()" style="margin-bottom:0">
+    </div>
+    <div class="field-group" style="margin-bottom:0">
+      <label style="margin-bottom:4px">Surname</label>
+      <input type="text" id="dir-sur-${id}" placeholder="e.g. Boardman" oninput="liveUpdate()" style="margin-bottom:0">
+    </div>
+    <button class="btn-remove" onclick="removeDirector(${id})" title="Remove">×</button>
+  `;
+  list.appendChild(entry);
+}
+
+function removeDirector(id) {
+  directors = directors.filter(d => d.id !== id);
+  document.getElementById(`dir-entry-${id}`)?.remove();
+  liveUpdate();
+}
+
+function getDirectors() {
+  return directors.map(d => {
+    const init = (document.getElementById(`dir-init-${d.id}`)?.value || '').trim().toUpperCase();
+    const sur = (document.getElementById(`dir-sur-${d.id}`)?.value || '').trim().toUpperCase();
+    return { init, sur, full: init && sur ? `${init} ${sur}` : '' };
+  }).filter(d => d.full);
+}
+
+function formatDirectorList(dirs) {
+  if (!dirs.length) return '[DIRECTOR NAMES]';
+  if (dirs.length === 1) return dirs[0].full;
+  if (dirs.length === 2) return `${dirs[0].full} and ${dirs[1].full}`;
+  return dirs.slice(0, -1).map(d => d.full).join(', ') + ', and ' + dirs[dirs.length - 1].full;
+}
+
+function getPronoun(dirs, terms) {
+  if (dirs.length > 1) return 'their';
+  return terms.pronoun === 'their' ? 'their' : terms.pronoun;
+}
+
+// ── Live update (stub — generate on button) ──
+function liveUpdate() { /* update on generate */ }
+
+// ── DOCUMENT GENERATION ──
+function generateDoc() {
+  const co = getVal('companyName') || '[COMPANY NAME]';
+  const reg = getVal('regNumber') || '[REGISTRATION NUMBER]';
+  const yearEnd = getVal('yearEnd') || '[YEAR END]';
+  const prevYearEnd = getVal('prevYearEnd') || '[PREVIOUS YEAR END]';
+  const nature = getVal('natureBusiness') || '[NATURE OF BUSINESS]';
+  const income = getVal('mainIncome') || '[MAIN INCOME SOURCE]';
+  const postal = getVal('postalAddress') || '[POSTAL ADDRESS]';
+  const regAddr = getVal('regAddress') || '[REGISTERED ADDRESS]';
+  const dateApproved = getVal('dateApproved') || '[DATE APPROVED]';
+  const dateSigned = getVal('dateSigned') || '[DATE SIGNED]';
+  const profitLoss = getVal('profitLoss') || '[PROFIT/LOSS]';
+  const prevProfitLoss = getVal('prevProfitLoss') || '[PREV PROFIT/LOSS]';
+  const pageStart = getVal('pageStart') || '5';
+  const pageEnd = getVal('pageEnd') || '12';
+  const dividendAmount = getVal('dividendAmount') || '[AMOUNT]';
+  const parentName = getVal('parentName') || '[PARENT COMPANY]';
+
+  const terms = getEntityTerms();
+  const dirs = getDirectors();
+  const dirList = formatDirectorList(dirs);
+  const pronoun = getPronoun(dirs, terms);
+  const reportType = getRadio('reportType');
+
+  const coUpper = co.toUpperCase();
+  const shareCapital = getRadio('shareCapital');
+  const dividends = getRadio('dividends');
+  const fixedAssets = getRadio('fixedAssets');
+  const outlook = getRadio('outlook');
+  const parentCo = getRadio('parentCo');
+
+  // Share capital sentence
+  let shareCapitalSentence = '';
+  if (shareCapital === 'nochange') shareCapitalSentence = `There were no changes in the authorised or issued share capital of the company during the year under review.`;
+  else if (shareCapital === 'issued') shareCapitalSentence = `Shares and share capital were issued since the company was incorporated during the year under review.`;
+  else shareCapitalSentence = `Shares were authorised and issued for no consideration to the company during the year under review.`;
+
+  // Dividend sentence
+  let dividendSentence = '';
+  if (dividends === 'none') dividendSentence = `No dividend was declared or paid during the year.`;
+  else dividendSentence = `A dividend of R ${dividendAmount} was declared/paid during the year.`;
+
+  // Fixed assets sentence
+  let fixedAssetsSentence = '';
+  if (fixedAssets === 'nochange') fixedAssetsSentence = `No major change in the nature of the company's fixed assets or in the policy relating to the use thereof, took place during the accounting period.`;
+  else fixedAssetsSentence = `There was a change to the accounting policy on fixed assets such as described in note 1.1 and 1.2 of the financial statements.`;
+
+  // Outlook sentence
+  const outlookText = outlook === 'continue' ? 'continue to be profitable' : 'be profitable in future';
+
+  // Parent sentence
+  let parentSentence = '';
+  if (parentCo === 'none') parentSentence = `The company has no parent company in or outside the Republic.`;
+  else parentSentence = `The company's parent company is ${parentName}.`;
+
+  // Report section heading numbers
+  const pg1 = 1, pg2 = 2, pg3 = 3, pg4 = 4;
+
+  // Signature blocks for directors (up to 4, split into pairs)
+  function sigBlock(dirs) {
+    if (!dirs.length) {
+      return `<div class="sig-line"></div><br><div class="sig-name">&nbsp;</div>`;
+    }
+    let html = '<div style="display:flex;flex-wrap:wrap;gap:8px 48px;margin-top:16px;">';
+    dirs.forEach(d => {
+      html += `<div style="min-width:180px;margin-bottom:24px;">
+        <div style="border-bottom:1px solid #333;width:200px;margin-bottom:6px;">&nbsp;</div>
+        <div class="sig-name">${d.full}</div>
+      </div>`;
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // ── PAGE 1: CA DECLARATION ──
+  const page1 = `
+  <div class="doc-page">
+    <div class="page-header">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Registration Number ${reg})</div>
+    </div>
+    <h2>The Chartered Accountant's (South Africa) Declaration</h2>
+    <p>The following annual financial statements of ${co}, as presented on pages ${pageStart} to ${pageEnd}, have been independently compiled by a Chartered Accountant (South Africa) [CA(SA)]. Refer to compilation report on page ${pg3}.</p>
+    <p>Use of the CA(SA) designation is governed by the <em>Chartered Accountants Designation (Private) Act</em>, 1993 (Act 67 of 1993), which regulates and permits the use of the CA(SA) designation exclusively by members of The South African Institute of Chartered Accountants (SAICA). Use of the designation without SAICA membership is consequently a criminal offence, and misuse is subject to legal action.</p>
+    <p>SAICA is the premier accountancy body in South Africa and one of the leading chartered accountancy institutes in the world and all members must comply with the Code of Professional Conduct which conforms to the code released by the International Ethics Standards Board for Accountants (IESBA). The SAICA code and definitions contained therein are consistent in all material aspects with the International Federation of Accountants' (IFAC) code as well as the Independent Regulatory Board for Auditors (IRBA) code.</p>
+    <p>The following fundamental principles are embodied in the SAICA Code of Professional Conduct and are to be upheld by all CA's(SA) at all times.</p>
+    <ul>
+      <li><strong>Integrity</strong> — a duty to be straightforward and honest in all professional and business relationships.</li>
+      <li><strong>Objectivity</strong> — a duty to not allow bias, conflict of interest or undue influence of others to override professional or business judgments.</li>
+      <li><strong>Professional competence and due care</strong> — a duty to maintain professional knowledge and skill at the level required to ensure that a client receives competent professional services based on current developments in practice, legislation and techniques and act diligently and in accordance with applicable technical and professional standards.</li>
+      <li><strong>Confidentiality</strong> — a duty to respect the confidentiality of information acquired as a result of professional and business relationships and, therefore, not disclose any such information to third parties without proper and specific authority, unless there is a legal or professional right or duty to disclose, nor use the information for the personal advantage of the chartered accountant or third parties.</li>
+      <li><strong>Professional behaviour</strong> — a duty to comply with relevant laws and regulations and avoid any action that discredits the accountancy profession.</li>
+    </ul>
+    <p>A distinguishing characteristic of CA's(SA) are their responsibilities and duties which extend beyond the needs of individual clients and also includes the public as a whole.</p>
+    <p>Accordingly, this declaration serves to confirm that the above mentioned financial statements have been prepared by a CA(SA) who has observed and complied with the SAICA Code.</p>
+    <div class="compiler-block">
+      <p>H/L VAN DER MERWE</p>
+      <p>CHARTERED ACCOUNTANT (SA)</p>
+      <p>STANDERTON</p>
+      <p>${dateSigned}</p>
+    </div>
+    <div class="page-number">${pg1}</div>
+  </div>`;
+
+  // ── PAGE 2: DIRECTORS' RESPONSIBILITIES ──
+  const bodyTerm = terms.body;
+  const pluralTerm = terms.plural;
+  const actRef = terms.act;
+
+  const page2 = `
+  <div class="doc-page">
+    <div class="page-header">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Registration Number ${reg})</div>
+    </div>
+    <h2>${pluralTerm}' Responsibilities and Approval</h2>
+    <p>${bodyTerm} are required in terms of the ${actRef}, to maintain adequate accounting records and are responsible for the content and integrity of the financial statements and related financial information included in this report. It is ${pronoun} responsibility to ensure that the financial statements fairly present the state of affairs of the entity as at the end of the financial year and the results of its operations and cash flows for the period then ended, in conformity with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa.</p>
+    <p>The financial statements are prepared in accordance with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa and are based upon appropriate accounting policies consistently applied and supported by reasonable and prudent judgments and estimates.</p>
+    <p>${bodyTerm} acknowledge that they are ultimately responsible for the system of internal financial control established by the entity and place considerable emphasis on maintaining a strong control environment. To enable the ${pluralTerm.toLowerCase()} to meet these responsibilities, the board sets standards for internal control aimed at reducing the risk of error or loss in a cost-effective manner. The standards include the proper delegation of responsibilities within a clearly defined framework, effective accounting procedures and adequate segregation of duties to ensure an acceptable level of risk. These controls are monitored throughout the entity and all employees are required to maintain the highest ethical standards in ensuring the entity's business is conducted in a manner that in all reasonable circumstances is above reproach. The focus of risk management in the entity is on identifying, assessing, managing and monitoring all known forms of risk. While operating risk cannot be fully eliminated, the entity endeavours to minimise it by ensuring that appropriate infrastructure, controls, systems and ethical behaviour are applied and managed within predetermined procedures and constraints.</p>
+    <p>${bodyTerm} are of the opinion, based on the information and explanations given by management that the system of internal control provides reasonable assurance that the financial records may be relied on for the preparation of the financial statements. However, any system of internal financial control can provide only reasonable, and not absolute, assurance against material misstatement or loss.</p>
+    <p>${bodyTerm} have reviewed the cash flow forecast for the year and, in the light of this review and the current financial position, they are satisfied that the entity has access to adequate resources to continue in operational existence for the foreseeable future.</p>
+    <p>The financial statements set out on pages ${pageStart} to ${pageEnd}, which have been prepared on the going concern basis, were approved by the board on ${dateApproved} and are signed on its behalf:</p>
+    <div class="signature-block">
+      ${sigBlock(dirs)}
+    </div>
+    <div class="page-number">${pg2}</div>
+  </div>`;
+
+  // ── PAGE 3: COMPILATION REPORT ──
+  const page3 = `
+  <div class="doc-page">
+    <div class="page-header">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Registration Number ${reg})</div>
+    </div>
+    <h2>Independent Compiler's Report</h2>
+    <p><em>To the ${terms.report_to} of ${co}</em></p>
+    <p><em>(Registration Number ${reg})</em></p>
+    <h3>Report on the Financial Statements</h3>
+    <p>We have compiled the annual financial statements of ${co} based on information the entity provided. These financial statements are presented in accordance with the financial framework described in the accounting policy in these financial statements. The financial statements comprise of the statement of financial position as at ${yearEnd} and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and a summary of significant accounting policies and other explanatory information, and the ${pluralTerm.toLowerCase()}' report, as set out on pages ${pageStart} to ${pageEnd}.</p>
+    <h3>${pluralTerm}' Responsibility for the Financial Statements</h3>
+    <p>The company's ${pluralTerm.toLowerCase()} are responsible for the preparation and fair presentation of these financial statements in accordance with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa, and for such internal control as the ${pluralTerm.toLowerCase()} determine necessary to enable the preparation of financial statements that are free from material misstatement, whether due to fraud or error.</p>
+    <h3>Independent Compiler's Responsibility</h3>
+    <p>We performed this compilation engagement in accordance with <em>International Standard on Related Services 4410 (Revised), Compilation Engagements.</em> This Standard requires that we comply with quality control standards and relevant ethical requirements, including ethical principles of integrity, objectivity, professional competence and due care.</p>
+    <p>A compilation engagement involves applying expertise in accounting and financial reporting to assist management in preparing and presenting financial information. A compilation engagement does not involve gathering evidence for the purpose of expressing an opinion or a review conclusion. Accordingly, we do not express an audit opinion or a review conclusion on these financial statements.</p>
+    <div class="compiler-block">
+      <p>H/L VAN DER MERWE</p>
+      <p>CHARTERED ACCOUNTANT (SA)</p>
+      <p>STANDERTON</p>
+      <p>${dateSigned}</p>
+    </div>
+    <div class="page-number">${pg3}</div>
+  </div>`;
+
+  // ── PAGE 4: DIRECTORS' REPORT ──
+  const page4 = `
+  <div class="doc-page">
+    <div class="page-header">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Registration Number ${reg})</div>
+    </div>
+    <h2>${pluralTerm}' Report</h2>
+    <p>${bodyTerm} have pleasure in presenting ${pronoun} report for the year ended ${yearEnd}.</p>
+    <p class="underline-heading">Business Activities and General Review of Operations</p>
+    <p>The main business of the company is ${nature} and income of the company is generated mainly from ${income}.</p>
+    <p>No material fact or circumstance has occurred since the financial position and the date of this report.</p>
+    <p class="underline-heading">Specific Matters</p>
+    <p>No major change in the nature of the company's business took place during the accounting period.</p>
+    <p>${shareCapitalSentence}</p>
+    <p>${dividendSentence}</p>
+    <p>${fixedAssetsSentence}</p>
+    <p>The company realised a profit/loss after tax of R ${profitLoss} for the year ended ${yearEnd} (${prevYearEnd} — profit/loss of R ${prevProfitLoss}). ${bodyTerm} expect that the company will ${outlookText}. Accordingly the annual financial statements of the company are prepared on the basis of accounting policies applicable to a going concern.</p>
+    <p>The ${pluralTerm.toLowerCase()} of the company are: ${dirList}</p>
+    <p>The postal address is: ${postal}</p>
+    <p>The registered address is: ${regAddr}</p>
+    <p>${parentSentence}</p>
+    <p>The financial statements were approved and signed by the ${pluralTerm.toLowerCase()}.</p>
+    <p class="underline-heading">${pluralTerm}:</p>
+    <div class="signature-block">
+      ${sigBlock(dirs)}
+    </div>
+    <p>${dateApproved}</p>
+    <div class="page-number">${pg4}</div>
+  </div>`;
+
+  const output = document.getElementById('document-output');
+  output.innerHTML = page1 + page2 + page3 + page4;
+  output.classList.add('visible');
+
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('btn-print').classList.add('visible');
+
+  // Scroll preview into view
+  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
