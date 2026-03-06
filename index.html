@@ -428,6 +428,35 @@
   .policy-item.checked .policy-body {
     display: block;
   }
+  .policy-subitems {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .policy-subitem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    transition: all 0.12s;
+  }
+  .policy-subitem:has(input:checked) {
+    border-color: var(--gold);
+    background: #fffbf0;
+    font-weight: 500;
+  }
+  .policy-subitem input[type=checkbox] {
+    accent-color: var(--gold);
+    width: 14px; height: 14px;
+    flex-shrink: 0;
+  }
 
   /* ── PRINT ── */
   @media print {
@@ -776,116 +805,148 @@ const accountingPolicies = [
   {
     id: 'pol_framework',
     label: '1. Accounting Policy — General Framework',
+    originalNum: '1',
     text: 'The annual financial statements are presented in accordance with International Financial Reporting Standards for Small and Medium-sized Entities and are prepared on the historical cost basis. The principal policies are consistent with those applied in the previous year, except where indicated otherwise.'
   },
   {
     id: 'pol_ppe',
     label: '1.1 Property, Plant and Equipment',
-    text: 'Property, plant and equipment are stated at cost, including the cost to prepare the assets for their intended use, less accumulated depreciation. Property, plant and equipment, with the exception of land and buildings and personal assets, are depreciated in equal annual amounts to write off each asset over its estimated useful economic life. Investment properties are not depreciated. Other assets are depreciated at the following rates:<br><br>Vehicles — 20%<br>Computer Equipment — 33.33%<br>Furniture and Fittings — 16.66%<br><br>Land and buildings are valuated from time to time to ensure that the net realisable value of these assets still exceeds the original cost of the property. Should the realisable value be less than the original cost the assets will be revalued to the realisable value.'
+    originalNum: '1.1',
+    text: 'Property, plant and equipment are stated at cost, including the cost to prepare the assets for their intended use, less accumulated depreciation. Property, plant and equipment, with the exception of land and buildings and personal assets, are depreciated in equal annual amounts to write off each asset over its estimated useful economic life. Investment properties are not depreciated. Other assets are depreciated at the following rates:',
+    subItems: [
+      { id: 'pol_ppe_farming',   label: 'Farming Equipment',    rate: '10%' },
+      { id: 'pol_ppe_vehicles',  label: 'Vehicles',             rate: '20%' },
+      { id: 'pol_ppe_medical',   label: 'Medical Equipment',    rate: '20%' },
+      { id: 'pol_ppe_furniture', label: 'Furniture and Fittings', rate: '16.66%' },
+      { id: 'pol_ppe_office',    label: 'Office Equipment',     rate: '20%' },
+      { id: 'pol_ppe_computer',  label: 'Computer Equipment',   rate: '33.33%' },
+    ],
+    textSuffix: 'Land and buildings are valuated from time to time to ensure that the net realisable value of these assets still exceeds the original cost of the property. Should the realisable value be less than the original cost the assets will be revalued to the realisable value.'
   },
   {
     id: 'pol_investments',
     label: '1.2 Investments',
+    originalNum: '1.2',
     text: 'Investments are stated at cost to the entity, less amounts written off as permanent diminution in the value of investments.'
   },
   {
     id: 'pol_crypto',
     label: '1.3 Intangible Assets — Crypto Assets',
+    originalNum: '1.3',
     text: 'A crypto asset is a digital representation of value that is not issued by a central bank, but is traded, transferred and stored electronically by natural and legal persons for the purpose of payment, investment and other forms of utility, and applies cryptography techniques in the underlying technology. The crypto assets are measured at cost on initial recognition and are subsequently measured at cost less accumulated amortisation and impairment losses.'
   },
   {
     id: 'pol_goodwill',
     label: '1.3 Goodwill',
+    originalNum: '1.3',
     text: 'Goodwill is carried at cost to the entity, less amounts written off as permanent diminution in the value of Goodwill.'
   },
   {
     id: 'pol_subsidiaries',
     label: '1.4 Associated Companies and Subsidiaries',
+    originalNum: '1.4',
     text: 'Investments in subsidiaries and associated companies are carried at cost, less amounts written off as permanent diminution in the value of these investments. The results of the Subsidiaries are not consolidated in the financial statements of the holding company as per the decision of the directors.'
   },
   {
     id: 'pol_ltloans_granted',
     label: '1.5 Long Term Loans Granted',
+    originalNum: '1.5',
     text: 'Long term loans are carried at nominal value. Loans to related parties are carried at nominal value and no short term portion is recognised as there is no fixed repayment schedule determined on these loans.'
   },
   {
     id: 'pol_biological',
     label: '1.6 Biological Assets',
+    originalNum: '1.6',
     text: 'Biological assets which consists of different components are accounted for as follows:<br><br><strong>1.6.1 Harvest on Land</strong><br>Harvest on land is shown at director\'s/trustee\'s/member\'s valuation.<br><br><strong>1.6.2 Livestock on Hand</strong><br>Livestock on hand is shown at the net realisable value at year end, which is determined by the owners/directors/trustees/members.'
   },
   {
     id: 'pol_inventory',
     label: '1.7 Inventory',
+    originalNum: '1.7',
     text: 'Inventory is stated at the lower of cost or net realisable value. The cost of inventory is generally determined by means of the first-in-first-out method, with production costs, which includes direct labour, an appropriate portion of overheads and other direct costs, but excludes interest. Net realisable value is the estimate of the selling price, less the costs of completion and selling expenses. Write-offs are made in the valuation for obsolete, unusable and unsalable inventory and for latent damage first revealed when stock items are taken into use or offered for sale.'
   },
   {
     id: 'pol_receivables',
     label: '1.8 Trade and Other Receivables',
+    originalNum: '1.8',
     text: 'Trade and other receivables are carried at nominal value. An estimate is made for doubtful receivables based on a review of all outstanding amounts at the year-end. Bad debts are written off during the year in which they are identified.'
   },
   {
     id: 'pol_cash',
     label: '1.9 Cash and Cash Equivalents',
+    originalNum: '1.9',
     text: 'For purposes of the statement of cash flow, cash and cash equivalents comprise cash on hand, deposits held at call with banks and investments in money market instruments, and net of bank overdrafts.'
   },
   {
     id: 'pol_provisions',
     label: '1.10 Provisions',
+    originalNum: '1.10',
     text: 'Provisions are recognised when the entity has a present legal or constructive obligation as a result of past events, it is probable that an outflow of resources embodying economic benefits will be required to settle the obligation and a reliable estimate of the amount of the obligation can be made.'
   },
   {
     id: 'pol_ltloans',
     label: '1.11 Long Term Loans',
+    originalNum: '1.11',
     text: 'Long term loans are carried at nominal value less the short term portion of the loan. Loans from related parties are carried at nominal value and no short term portion is recognised as there is no fixed repayment schedule determined on these loans.'
   },
   {
     id: 'pol_deftax',
     label: '1.12 Deferred Taxation',
+    originalNum: '1.12',
     text: 'Deferred taxation is provided, using the liability method, for all temporary differences arising between the tax basis of assets and liabilities and their carrying values for financial reporting purposes. Currently enacted tax rates are used to determine deferred taxation. No deferred taxation asset is recognised.'
   },
   {
     id: 'pol_payables',
     label: '1.13 Trade and Other Payables',
+    originalNum: '1.13',
     text: 'Trade and other payables are carried at nominal value.'
   },
   {
     id: 'pol_dividends_received',
     label: '1.14 Dividends Received',
+    originalNum: '1.14',
     text: 'Dividends are recognised when the right to receive payment is established.'
   },
   {
     id: 'pol_interest',
     label: '1.15 Interest Received',
+    originalNum: '1.15',
     text: 'Interest is accrued on a time-proportion basis, recognising the effective yield on the underlying assets.'
   },
   {
     id: 'pol_product_sales',
     label: '1.16 Product Sales',
+    originalNum: '1.16',
     text: 'Sales are recognized upon delivery of products and customer acceptance and stated as net income after value added tax and discount.'
   },
   {
     id: 'pol_revenue',
     label: '1.17 Revenue Recognition',
+    originalNum: '1.17',
     text: 'Revenue is recognized upon delivery and represents amounts received or receivable for operations in the normal course of business and is stated as net income after value added tax and discount.'
   },
   {
     id: 'pol_revenue_bc',
     label: '1.17 Revenue Recognition (Body Corporate)',
+    originalNum: '1.17',
     text: 'The ordinary levies are accounted for on a straight-line basis over the financial year and decided amongst the section owners on a participation quota basis. The annual ordinary levies are agreed and approved by the members, directors, trustees of the body corporate\'s, close corporation\'s, company\'s annual general meeting.'
   },
   {
     id: 'pol_expenses_bc',
     label: '1.18 Expenses (Body Corporate)',
+    originalNum: '1.18',
     text: 'Expenses are acknowledged on the accrual basis as they occur.'
   },
   {
     id: 'pol_leases',
     label: '1.18 Leased Assets',
+    originalNum: '1.18',
     text: 'Leases are classified as finance leases where substantially all risks and rewards associated with ownership of an asset are transferred from the lessor to the entity as lessee. Assets classified as finance leases are capitalised at their cash cost equivalent, with the related lease obligation recognised at the same value. Capitalised leased assets are depreciated over their estimated useful lives, limited to the duration of the lease agreement. Finance lease payments are allocated, using the effective interest rate method, between finance costs and the capital repayment which reduces the liability to the lessor.<br><br>Operating leases are all leases not classified as finance leases. Operating lease rentals are charged against operating profits as they become due.'
   },
   {
     id: 'pol_comparative',
     label: '10. Comparative Figures',
+    originalNum: '10',
     text: 'No comparative figures are available as the company only started trading in the current year.'
   }
 ];
@@ -896,12 +957,25 @@ function buildPolicyChecklist() {
     const div = document.createElement('div');
     div.className = 'policy-item';
     div.id = 'pi-' + p.id;
+
+    // Build sub-items HTML if present
+    let subHtml = '';
+    if (p.subItems) {
+      subHtml = `<div class="policy-subitems">` +
+        p.subItems.map(s => `
+          <label class="policy-subitem">
+            <input type="checkbox" id="${s.id}" onchange="liveUpdate()">
+            <span>${s.label} — ${s.rate}</span>
+          </label>`).join('') +
+        `</div>`;
+    }
+
     div.innerHTML = `
       <label class="policy-header">
         <input type="checkbox" id="${p.id}" onchange="togglePolicy('${p.id}')">
         <span class="policy-label">${p.label}</span>
       </label>
-      <div class="policy-body">${p.text}</div>
+      <div class="policy-body">${p.text || ''}${subHtml}</div>
     `;
     container.appendChild(div);
   });
@@ -1229,7 +1303,7 @@ function generateDoc() {
       </tr>
       <tr>
         <td>Nature of Business and Principal Activities</td>
-        <td>${nature}${income && income !== nature ? ' — ' + income : ''}</td>
+        <td>${nature}</td>
       </tr>
       <tr>
         <td>${pluralTerm}</td>
@@ -1372,6 +1446,29 @@ function generateDoc() {
     return cb && cb.checked;
   });
 
+  // Assign sequential display numbers to selected policies
+  // Top-level numbers reset per section; sub-numbers increment within 1.x
+  // Logic: walk selected list, assign 1, 1.1, 1.2 ... based on position
+  let mainCounter = 0;
+  let subCounter = 0;
+  let lastWasMain = false;
+  const numberedPolicies = selectedPolicies.map(p => {
+    const origNum = p.originalNum || '';
+    let displayNum = '';
+    // "10" and other non-1.x are treated as standalone
+    if (origNum === '1') {
+      mainCounter = 1; subCounter = 0; lastWasMain = true;
+      displayNum = '1';
+    } else if (origNum.startsWith('1.') || origNum.match(/^1\.\d/)) {
+      subCounter++;
+      displayNum = `1.${subCounter}`;
+    } else {
+      // standalone like "10"
+      displayNum = origNum;
+    }
+    return { ...p, displayNum };
+  });
+
   // Page header helper for notes pages
   function notesPageHeader() {
     return `
@@ -1382,9 +1479,25 @@ function generateDoc() {
     <h2>NOTES FOR THE YEAR ENDED ${yearEnd.toUpperCase()}</h2>`;
   }
 
+  // Build text for a policy entry (handle PPE sub-items)
+  function buildPolicyText(p) {
+    if (p.id === 'pol_ppe' && p.subItems) {
+      const checkedSubs = p.subItems.filter(s => {
+        const cb = document.getElementById(s.id);
+        return cb && cb.checked;
+      });
+      let rateTable = '';
+      if (checkedSubs.length > 0) {
+        rateTable = '<br>' + checkedSubs.map(s => `${s.label} — ${s.rate}`).join('<br>') + '<br><br>';
+      } else {
+        rateTable = '<br>';
+      }
+      return (p.text || '') + rateTable + (p.textSuffix || '');
+    }
+    return p.text || '';
+  }
+
   // Build policy pages — paginate by estimated content weight
-  // Each policy gets a "weight": short = 1, long (contains <br>) = 2
-  const ITEMS_PER_PAGE = 5;
   let policyPages = '';
   let currentPageItems = [];
   let pgNum = 5;
@@ -1393,8 +1506,8 @@ function generateDoc() {
     if (!items.length) return '';
     let content = items.map(p => `
       <div class="policy-entry">
-        <p class="underline-heading">${p.label}</p>
-        <p>${p.text}</p>
+        <p class="underline-heading">${p.displayNum}. ${p.label.replace(/^[\d.]+\s*/, '')}</p>
+        <p>${buildPolicyText(p)}</p>
       </div>`).join('');
     return `
   <div class="doc-page">
@@ -1404,10 +1517,10 @@ function generateDoc() {
   </div>`;
   }
 
-  if (selectedPolicies.length > 0) {
+  if (numberedPolicies.length > 0) {
     let weight = 0;
-    for (const p of selectedPolicies) {
-      const pWeight = (p.text.match(/<br>/g) || []).length > 3 ? 3 : (p.text.match(/<br>/g) || []).length > 0 ? 2 : 1;
+    for (const p of numberedPolicies) {
+      const pWeight = (buildPolicyText(p).match(/<br>/g) || []).length > 3 ? 3 : (buildPolicyText(p).match(/<br>/g) || []).length > 0 ? 2 : 1;
       if (weight + pWeight > 8 && currentPageItems.length > 0) {
         policyPages += flushPolicyPage(currentPageItems, pgNum++);
         currentPageItems = [];
