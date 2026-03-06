@@ -499,12 +499,12 @@
 
     <div class="field-group">
       <label>Financial Year End</label>
-      <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025" oninput="liveUpdate()">
+      <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025" oninput="autoFillPrevYear(); liveUpdate()">
     </div>
 
     <div class="field-group">
-      <label>Previous Year End</label>
-      <input type="text" id="prevYearEnd" placeholder="e.g. 28 February 2024" oninput="liveUpdate()">
+      <label>Previous Year End <span style="font-weight:400;color:#9090b0;font-size:11px;">(auto-filled from year end)</span></label>
+      <input type="text" id="prevYearEnd" placeholder="Auto-filled when year end is entered" oninput="liveUpdate()" style="background:#f9f7f2;">
     </div>
 
     <div class="field-group">
@@ -580,7 +580,22 @@
 
     <div class="field-group">
       <label>Bank</label>
-      <input type="text" id="bankName" placeholder="e.g. Standard Bank" oninput="liveUpdate()">
+      <select id="bankSelect" onchange="updateBank()">
+        <option value="">— Select a bank —</option>
+        <option value="ABSA">ABSA</option>
+        <option value="First National Bank">First National Bank</option>
+        <option value="Standard Bank">Standard Bank</option>
+        <option value="Investec">Investec</option>
+        <option value="Capitec">Capitec</option>
+        <option value="Discovery Bank">Discovery Bank</option>
+        <option value="Nedbank">Nedbank</option>
+        <option value="Tyme Bank">Tyme Bank</option>
+        <option value="African Bank">African Bank</option>
+        <option value="Al Baraka Bank">Al Baraka Bank</option>
+        <option value="other">Other…</option>
+      </select>
+      <input type="text" id="bankOther" placeholder="Enter bank name" oninput="liveUpdate()" style="display:none;margin-top:8px;">
+      <input type="hidden" id="bankName">
     </div>
 
     <div class="field-group">
@@ -898,10 +913,60 @@ function togglePolicy(id) {
   item.classList.toggle('checked', cb.checked);
 }
 
+// ── AUTO-FILL PREVIOUS YEAR END ──
+function autoFillPrevYear() {
+  const raw = document.getElementById('yearEnd').value.trim();
+  if (!raw) return;
+  const months = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+  const monthNames = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+  let day = null, month = null, year = null;
+  const named = raw.match(/^(\d{1,2}\s+)?([A-Za-z]+)\s+(\d{4})$/);
+  if (named) {
+    day   = named[1] ? named[1].trim() : null;
+    month = months[named[2].toLowerCase()];
+    year  = parseInt(named[3]);
+  }
+  if (!month) {
+    const slashed = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/) || raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if (slashed) {
+      const a = parseInt(slashed[1]), b = parseInt(slashed[2]), c = parseInt(slashed[3]);
+      if (a > 31) { year = a; month = b; day = c; }
+      else        { day = a; month = b; year = c; }
+    }
+  }
+  if (!month || !year) return;
+  const prevField = document.getElementById('prevYearEnd');
+  prevField.value = day ? `${day} ${monthNames[month]} ${year - 1}` : `${monthNames[month]} ${year - 1}`;
+}
+
+// ── BANK DROPDOWN ──
+function updateBank() {
+  const sel = document.getElementById('bankSelect').value;
+  const otherInput = document.getElementById('bankOther');
+  const hidden = document.getElementById('bankName');
+  if (sel === 'other') {
+    otherInput.style.display = 'block';
+    hidden.value = otherInput.value;
+  } else {
+    otherInput.style.display = 'none';
+    hidden.value = sel;
+  }
+  liveUpdate();
+}
+
 // Init checklist on load
 buildPolicyChecklist();
 
 addDirector();
+addDirector();
+
+// Wire bank "Other" live input
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'bankOther') {
+    document.getElementById('bankName').value = e.target.value;
+    liveUpdate();
+  }
+});
 
 function getVal(id) { return (document.getElementById(id)?.value || '').trim(); }
 function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
