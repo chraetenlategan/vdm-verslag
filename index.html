@@ -132,6 +132,7 @@
     flex-shrink: 0;
   }
   .btn-remove:hover { background: #ffe0e0; }
+
   .btn-add {
     width: 100%; padding: 9px; border: 1.5px dashed var(--border);
     background: transparent; border-radius: 6px;
@@ -220,69 +221,69 @@
     width: 100%;
     max-width: 740px;
     margin: 0 auto 32px;
-    padding: 72px 80px;
+    padding: 52px 64px 48px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.12);
     font-family: 'Libre Baskerville', serif;
-    font-size: 10.5pt;
-    line-height: 1.75;
+    font-size: 9.5pt;
+    line-height: 1.55;
     color: #111;
     position: relative;
   }
 
   .doc-page .page-header {
-    text-align: center; margin-bottom: 32px;
-    padding-bottom: 20px; border-bottom: 0.5px solid #bbb;
+    text-align: center; margin-bottom: 20px;
+    padding-bottom: 14px; border-bottom: 0.5px solid #bbb;
   }
   .doc-page .co-name {
-    font-size: 13pt; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.04em; margin-bottom: 4px;
+    font-size: 11.5pt; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 3px;
   }
   .doc-page .co-reg {
-    font-size: 10pt; font-style: italic;
+    font-size: 9pt; font-style: italic;
   }
 
   .doc-page h2 {
-    font-size: 11pt; text-align: center; text-transform: uppercase;
-    letter-spacing: 0.08em; margin: 24px 0 20px;
+    font-size: 10pt; text-align: center; text-transform: uppercase;
+    letter-spacing: 0.08em; margin: 16px 0 14px;
     font-weight: 700;
   }
   .doc-page h3 {
-    font-size: 10.5pt; font-style: italic; font-weight: 700;
-    margin: 18px 0 8px;
+    font-size: 9.5pt; font-style: italic; font-weight: 700;
+    margin: 12px 0 6px;
   }
-  .doc-page p { margin-bottom: 12px; text-align: justify; }
+  .doc-page p { margin-bottom: 8px; text-align: justify; }
   .doc-page ul {
-    margin: 8px 0 12px 24px;
+    margin: 6px 0 8px 20px;
   }
-  .doc-page ul li { margin-bottom: 8px; text-align: justify; }
+  .doc-page ul li { margin-bottom: 5px; text-align: justify; }
 
   .doc-page .underline-heading {
-    font-size: 10.5pt; font-weight: 700; text-decoration: underline;
-    margin: 18px 0 10px; text-transform: uppercase;
+    font-size: 9.5pt; font-weight: 700; text-decoration: underline;
+    margin: 12px 0 6px; text-transform: uppercase;
     font-style: normal;
   }
 
   .doc-page .signature-block {
-    margin-top: 48px;
+    margin-top: 28px;
   }
   .doc-page .sig-line {
     display: inline-block;
     width: 220px; border-bottom: 1px solid #333;
-    margin-right: 40px; margin-bottom: 24px;
+    margin-right: 40px; margin-bottom: 18px;
   }
   .doc-page .sig-name {
-    font-weight: 700; font-size: 10pt;
-    text-transform: uppercase; margin-top: 4px;
+    font-weight: 700; font-size: 9pt;
+    text-transform: uppercase; margin-top: 3px;
   }
 
   .doc-page .compiler-block {
-    margin-top: 40px;
+    margin-top: 28px;
     font-weight: 700;
   }
   .doc-page .compiler-block p { margin: 0; text-align: left; }
 
   .page-number {
-    position: absolute; bottom: 32px; right: 48px;
+    position: absolute; bottom: 24px; right: 40px;
     font-family: 'DM Sans', sans-serif;
     font-size: 9pt; color: #999;
   }
@@ -297,11 +298,33 @@
       background: white; padding: 0; max-height: none; overflow: visible;
     }
     .doc-page {
-      box-shadow: none; margin: 0; page-break-after: always;
+      box-shadow: none;
+      margin: 0;
+      page-break-after: always;
+      page-break-inside: avoid;
       max-width: 100%;
+      width: 100%;
+      padding: 18mm 20mm 16mm;
+      font-size: 9pt;
+      line-height: 1.45;
     }
+    .doc-page .page-header { margin-bottom: 12px; padding-bottom: 8px; }
+    .doc-page h2 { margin: 10px 0 10px; font-size: 9.5pt; }
+    .doc-page h3 { margin: 8px 0 4px; font-size: 9pt; }
+    .doc-page p { margin-bottom: 5px; }
+    .doc-page ul { margin: 4px 0 6px 18px; }
+    .doc-page ul li { margin-bottom: 3px; }
+    .doc-page .signature-block { margin-top: 14px; }
+    .doc-page .compiler-block { margin-top: 16px; }
+    .page-number { bottom: 12px; right: 20px; }
     #document-output { display: block !important; }
     .btn-print { display: none !important; }
+
+    /* Hide browser-added header/footer text */
+    @page {
+      margin: 0;
+      size: A4;
+    }
   }
 </style>
 </head>
@@ -419,6 +442,16 @@
       <input type="text" id="dateSigned" placeholder="e.g. 2025.01.19" oninput="liveUpdate()">
     </div>
 
+    <div class="field-group">
+      <label>Compiler / Signatory (CA Declaration &amp; Compiler's Report)</label>
+      <select id="compilerSigner" onchange="liveUpdate()">
+        <option value="L VAN DER MERWE">L van der Merwe</option>
+        <option value="HL VAN DER MERWE">HL van der Merwe</option>
+        <option value="R DE BEER">R de Beer</option>
+        <option value="R WOLMARANS">R Wolmarans</option>
+      </select>
+    </div>
+
     <hr class="form-divider">
     <div class="step-label">Step 5</div>
     <div class="section-title">Specific Matters (Directors' Report)</div>
@@ -451,7 +484,7 @@
     </div>
     <div class="conditional field-group" id="dividend-amount-group">
       <label>Dividend Amount (R)</label>
-      <input type="text" id="dividendAmount" placeholder="e.g. 60,000.00" oninput="liveUpdate()">
+      <input type="text" id="dividendAmount" placeholder="e.g. 60000" oninput="liveUpdate()">
     </div>
 
     <div class="field-group">
@@ -472,7 +505,7 @@
     </div>
     <div class="field-group">
       <label>Profit or Loss — Previous Year (R)</label>
-      <input type="text" id="prevProfitLoss" placeholder="e.g. 2,365.81" oninput="liveUpdate()">
+      <input type="text" id="prevProfitLoss" placeholder="e.g. 2365.81" oninput="liveUpdate()">
     </div>
     <div class="field-group">
       <label>Future Outlook</label>
@@ -549,11 +582,41 @@ addDirector();
 function getVal(id) { return (document.getElementById(id)?.value || '').trim(); }
 function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
 
+// Format a number string with thousand separators, preserving decimals
+function formatNumber(val) {
+  if (!val) return val;
+  // Remove existing commas/spaces to normalise
+  const cleaned = val.replace(/,/g, '').trim();
+  const num = parseFloat(cleaned);
+  if (isNaN(num)) return val; // not a number, return as-is
+  // Format with thousand separators and up to 2 decimal places
+  return num.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function getEntityTerms() {
   const type = getRadio('entityType');
   if (type === 'cc') return { plural: 'Members', singular: 'Member', pronoun: 'their', body: 'The members', report_to: 'Members', act: 'Close Corporations Act 69 of 1984', role: 'member' };
   if (type === 'trust') return { plural: 'Trustees', singular: 'Trustee', pronoun: 'their', body: 'The trustees', report_to: 'Trustees', act: 'Trust Property Control Act 57 of 1988', role: 'trustee' };
   return { plural: 'Directors', singular: 'Director', pronoun: 'their', body: 'The directors', report_to: 'Shareholders', act: 'Companies Act 71 of 2008', role: 'director' };
+}
+
+// Returns singular or plural terms depending on director count
+function getTermsForCount(baseTerms, count) {
+  if (count === 1) {
+    // Singular overrides
+    const singularBody = {
+      'The directors': 'The director',
+      'The members': 'The member',
+      'The trustees': 'The trustee',
+    };
+    return {
+      ...baseTerms,
+      plural: baseTerms.singular,
+      body: singularBody[baseTerms.body] || baseTerms.body,
+      bodyPlain: baseTerms.singular,
+    };
+  }
+  return baseTerms;
 }
 
 function updateEntityType() {
@@ -587,11 +650,11 @@ function addDirector() {
   entry.innerHTML = `
     <div class="field-group" style="margin-bottom:0">
       <label style="margin-bottom:4px">Initials</label>
-      <input type="text" id="dir-init-${id}" placeholder="e.g. DT" oninput="liveUpdate()" style="margin-bottom:0">
+      <input type="text" id="dir-init-${id}" placeholder="e.g. DT" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
     </div>
     <div class="field-group" style="margin-bottom:0">
       <label style="margin-bottom:4px">Surname</label>
-      <input type="text" id="dir-sur-${id}" placeholder="e.g. Boardman" oninput="liveUpdate()" style="margin-bottom:0">
+      <input type="text" id="dir-sur-${id}" placeholder="e.g. Boardman" oninput="liveUpdate()" style="margin-bottom:0" autocomplete="off">
     </div>
     <button class="btn-remove" onclick="removeDirector(${id})" title="Remove">×</button>
   `;
@@ -606,8 +669,9 @@ function removeDirector(id) {
 
 function getDirectors() {
   return directors.map(d => {
+    // .toUpperCase() normalises regardless of caps lock state
     const init = (document.getElementById(`dir-init-${d.id}`)?.value || '').trim().toUpperCase();
-    const sur = (document.getElementById(`dir-sur-${d.id}`)?.value || '').trim().toUpperCase();
+    const sur  = (document.getElementById(`dir-sur-${d.id}`)?.value  || '').trim().toUpperCase();
     return { init, sur, full: init && sur ? `${init} ${sur}` : '' };
   }).filter(d => d.full);
 }
@@ -620,8 +684,9 @@ function formatDirectorList(dirs) {
 }
 
 function getPronoun(dirs, terms) {
-  if (dirs.length > 1) return 'their';
-  return terms.pronoun === 'their' ? 'their' : terms.pronoun;
+  // For a single director use "his/her" if the entity type doesn't mandate "their"
+  if (dirs.length === 1) return 'their';
+  return 'their';
 }
 
 // ── Live update (stub — generate on button) ──
@@ -629,35 +694,52 @@ function liveUpdate() { /* update on generate */ }
 
 // ── DOCUMENT GENERATION ──
 function generateDoc() {
-  const co = getVal('companyName') || '[COMPANY NAME]';
-  const reg = getVal('regNumber') || '[REGISTRATION NUMBER]';
-  const yearEnd = getVal('yearEnd') || '[YEAR END]';
+  const co          = getVal('companyName') || '[COMPANY NAME]';
+  const reg         = getVal('regNumber')   || '[REGISTRATION NUMBER]';
+  const yearEnd     = getVal('yearEnd')     || '[YEAR END]';
   const prevYearEnd = getVal('prevYearEnd') || '[PREVIOUS YEAR END]';
-  const nature = getVal('natureBusiness') || '[NATURE OF BUSINESS]';
-  const income = getVal('mainIncome') || '[MAIN INCOME SOURCE]';
-  const postal = getVal('postalAddress') || '[POSTAL ADDRESS]';
-  const regAddr = getVal('regAddress') || '[REGISTERED ADDRESS]';
+  const nature      = getVal('natureBusiness') || '[NATURE OF BUSINESS]';
+  const income      = getVal('mainIncome')  || '[MAIN INCOME SOURCE]';
+  const postal      = getVal('postalAddress') || '[POSTAL ADDRESS]';
+  const regAddr     = getVal('regAddress')  || '[REGISTERED ADDRESS]';
   const dateApproved = getVal('dateApproved') || '[DATE APPROVED]';
-  const dateSigned = getVal('dateSigned') || '[DATE SIGNED]';
-  const profitLoss = getVal('profitLoss') || '[PROFIT/LOSS]';
-  const prevProfitLoss = getVal('prevProfitLoss') || '[PREV PROFIT/LOSS]';
-  const pageStart = getVal('pageStart') || '5';
-  const pageEnd = getVal('pageEnd') || '12';
-  const dividendAmount = getVal('dividendAmount') || '[AMOUNT]';
-  const parentName = getVal('parentName') || '[PARENT COMPANY]';
+  const dateSigned  = getVal('dateSigned')  || '[DATE SIGNED]';
+  const pageStart   = getVal('pageStart')   || '5';
+  const pageEnd     = getVal('pageEnd')     || '12';
+  const parentName  = getVal('parentName')  || '[PARENT COMPANY]';
 
-  const terms = getEntityTerms();
-  const dirs = getDirectors();
-  const dirList = formatDirectorList(dirs);
-  const pronoun = getPronoun(dirs, terms);
-  const reportType = getRadio('reportType');
+  // Number formatting
+  const profitLoss     = formatNumber(getVal('profitLoss'))     || '[PROFIT/LOSS]';
+  const prevProfitLoss = formatNumber(getVal('prevProfitLoss')) || '[PREV PROFIT/LOSS]';
+  const dividendAmount = formatNumber(getVal('dividendAmount')) || '[AMOUNT]';
 
-  const coUpper = co.toUpperCase();
+  // Compiler/signer — normalise from select value (already uppercase)
+  const compilerSigner = document.getElementById('compilerSigner').value || 'L VAN DER MERWE';
+
+  const baseTerms = getEntityTerms();
+  const dirs      = getDirectors();
+  const dirCount  = dirs.length;
+
+  // Choose singular or plural terms based on actual director count
+  const terms     = getTermsForCount(baseTerms, dirCount);
+  const dirList   = formatDirectorList(dirs);
+  const pronoun   = getPronoun(dirs, baseTerms);
+
+  const coUpper      = co.toUpperCase();
   const shareCapital = getRadio('shareCapital');
-  const dividends = getRadio('dividends');
-  const fixedAssets = getRadio('fixedAssets');
-  const outlook = getRadio('outlook');
-  const parentCo = getRadio('parentCo');
+  const dividends    = getRadio('dividends');
+  const fixedAssets  = getRadio('fixedAssets');
+  const outlook      = getRadio('outlook');
+  const parentCo     = getRadio('parentCo');
+
+  // Plural / singular helpers
+  const pluralTerm  = terms.plural;   // e.g. "Director" (1) or "Directors" (2+)
+  const bodyTerm    = terms.body;     // e.g. "The director" (1) or "The directors" (2+)
+
+  // For sentences that differ purely on count:
+  const dirSingularPlural = dirCount === 1
+    ? { isAre: 'is', hasHave: 'has', theirIts: 'their', directorS: pluralTerm }
+    : { isAre: 'are', hasHave: 'have', theirIts: 'their', directorS: pluralTerm };
 
   // Share capital sentence
   let shareCapitalSentence = '';
@@ -668,7 +750,7 @@ function generateDoc() {
   // Dividend sentence
   let dividendSentence = '';
   if (dividends === 'none') dividendSentence = `No dividend was declared or paid during the year.`;
-  else dividendSentence = `A dividend of R ${dividendAmount} was declared/paid during the year.`;
+  else dividendSentence = `A dividend of R&nbsp;${dividendAmount} was declared/paid during the year.`;
 
   // Fixed assets sentence
   let fixedAssetsSentence = '';
@@ -686,20 +768,30 @@ function generateDoc() {
   // Report section heading numbers
   const pg1 = 1, pg2 = 2, pg3 = 3, pg4 = 4;
 
-  // Signature blocks for directors (up to 4, split into pairs)
+  // Signature blocks for directors
   function sigBlock(dirs) {
     if (!dirs.length) {
       return `<div class="sig-line"></div><br><div class="sig-name">&nbsp;</div>`;
     }
     let html = '<div style="display:flex;flex-wrap:wrap;gap:8px 48px;margin-top:16px;">';
     dirs.forEach(d => {
-      html += `<div style="min-width:180px;margin-bottom:24px;">
+      html += `<div style="min-width:180px;margin-bottom:18px;">
         <div style="border-bottom:1px solid #333;width:200px;margin-bottom:6px;">&nbsp;</div>
         <div class="sig-name">${d.full}</div>
       </div>`;
     });
     html += '</div>';
     return html;
+  }
+
+  // Compiler block helper
+  function compilerBlock(signer, date) {
+    return `<div class="compiler-block">
+      <p>${signer}</p>
+      <p>CHARTERED ACCOUNTANT (SA)</p>
+      <p>STANDERTON</p>
+      <p>${date}</p>
+    </div>`;
   }
 
   // ── PAGE 1: CA DECLARATION ──
@@ -723,20 +815,11 @@ function generateDoc() {
     </ul>
     <p>A distinguishing characteristic of CA's(SA) are their responsibilities and duties which extend beyond the needs of individual clients and also includes the public as a whole.</p>
     <p>Accordingly, this declaration serves to confirm that the above mentioned financial statements have been prepared by a CA(SA) who has observed and complied with the SAICA Code.</p>
-    <div class="compiler-block">
-      <p>H/L VAN DER MERWE</p>
-      <p>CHARTERED ACCOUNTANT (SA)</p>
-      <p>STANDERTON</p>
-      <p>${dateSigned}</p>
-    </div>
+    ${compilerBlock(compilerSigner, dateSigned)}
     <div class="page-number">${pg1}</div>
   </div>`;
 
   // ── PAGE 2: DIRECTORS' RESPONSIBILITIES ──
-  const bodyTerm = terms.body;
-  const pluralTerm = terms.plural;
-  const actRef = terms.act;
-
   const page2 = `
   <div class="doc-page">
     <div class="page-header">
@@ -744,11 +827,11 @@ function generateDoc() {
       <div class="co-reg">(Registration Number ${reg})</div>
     </div>
     <h2>${pluralTerm}' Responsibilities and Approval</h2>
-    <p>${bodyTerm} are required in terms of the ${actRef}, to maintain adequate accounting records and are responsible for the content and integrity of the financial statements and related financial information included in this report. It is ${pronoun} responsibility to ensure that the financial statements fairly present the state of affairs of the entity as at the end of the financial year and the results of its operations and cash flows for the period then ended, in conformity with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa.</p>
+    <p>${bodyTerm} ${dirSingularPlural.isAre} required in terms of the ${terms.act}, to maintain adequate accounting records and ${dirSingularPlural.isAre} responsible for the content and integrity of the financial statements and related financial information included in this report. It is ${pronoun} responsibility to ensure that the financial statements fairly present the state of affairs of the entity as at the end of the financial year and the results of its operations and cash flows for the period then ended, in conformity with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa.</p>
     <p>The financial statements are prepared in accordance with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa and are based upon appropriate accounting policies consistently applied and supported by reasonable and prudent judgments and estimates.</p>
-    <p>${bodyTerm} acknowledge that they are ultimately responsible for the system of internal financial control established by the entity and place considerable emphasis on maintaining a strong control environment. To enable the ${pluralTerm.toLowerCase()} to meet these responsibilities, the board sets standards for internal control aimed at reducing the risk of error or loss in a cost-effective manner. The standards include the proper delegation of responsibilities within a clearly defined framework, effective accounting procedures and adequate segregation of duties to ensure an acceptable level of risk. These controls are monitored throughout the entity and all employees are required to maintain the highest ethical standards in ensuring the entity's business is conducted in a manner that in all reasonable circumstances is above reproach. The focus of risk management in the entity is on identifying, assessing, managing and monitoring all known forms of risk. While operating risk cannot be fully eliminated, the entity endeavours to minimise it by ensuring that appropriate infrastructure, controls, systems and ethical behaviour are applied and managed within predetermined procedures and constraints.</p>
-    <p>${bodyTerm} are of the opinion, based on the information and explanations given by management that the system of internal control provides reasonable assurance that the financial records may be relied on for the preparation of the financial statements. However, any system of internal financial control can provide only reasonable, and not absolute, assurance against material misstatement or loss.</p>
-    <p>${bodyTerm} have reviewed the cash flow forecast for the year and, in the light of this review and the current financial position, they are satisfied that the entity has access to adequate resources to continue in operational existence for the foreseeable future.</p>
+    <p>${bodyTerm} acknowledge that ${dirSingularPlural.theirIts} are ultimately responsible for the system of internal financial control established by the entity and place considerable emphasis on maintaining a strong control environment. To enable the ${pluralTerm.toLowerCase()} to meet these responsibilities, the board sets standards for internal control aimed at reducing the risk of error or loss in a cost-effective manner. The standards include the proper delegation of responsibilities within a clearly defined framework, effective accounting procedures and adequate segregation of duties to ensure an acceptable level of risk. These controls are monitored throughout the entity and all employees are required to maintain the highest ethical standards in ensuring the entity's business is conducted in a manner that in all reasonable circumstances is above reproach. The focus of risk management in the entity is on identifying, assessing, managing and monitoring all known forms of risk. While operating risk cannot be fully eliminated, the entity endeavours to minimise it by ensuring that appropriate infrastructure, controls, systems and ethical behaviour are applied and managed within predetermined procedures and constraints.</p>
+    <p>${bodyTerm} ${dirSingularPlural.isAre} of the opinion, based on the information and explanations given by management that the system of internal control provides reasonable assurance that the financial records may be relied on for the preparation of the financial statements. However, any system of internal financial control can provide only reasonable, and not absolute, assurance against material misstatement or loss.</p>
+    <p>${bodyTerm} ${dirSingularPlural.hasHave} reviewed the cash flow forecast for the year and, in the light of this review and the current financial position, ${dirCount === 1 ? 'is' : 'they are'} satisfied that the entity has access to adequate resources to continue in operational existence for the foreseeable future.</p>
     <p>The financial statements set out on pages ${pageStart} to ${pageEnd}, which have been prepared on the going concern basis, were approved by the board on ${dateApproved} and are signed on its behalf:</p>
     <div class="signature-block">
       ${sigBlock(dirs)}
@@ -769,16 +852,11 @@ function generateDoc() {
     <h3>Report on the Financial Statements</h3>
     <p>We have compiled the annual financial statements of ${co} based on information the entity provided. These financial statements are presented in accordance with the financial framework described in the accounting policy in these financial statements. The financial statements comprise of the statement of financial position as at ${yearEnd} and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and a summary of significant accounting policies and other explanatory information, and the ${pluralTerm.toLowerCase()}' report, as set out on pages ${pageStart} to ${pageEnd}.</p>
     <h3>${pluralTerm}' Responsibility for the Financial Statements</h3>
-    <p>The company's ${pluralTerm.toLowerCase()} are responsible for the preparation and fair presentation of these financial statements in accordance with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa, and for such internal control as the ${pluralTerm.toLowerCase()} determine necessary to enable the preparation of financial statements that are free from material misstatement, whether due to fraud or error.</p>
+    <p>The company's ${pluralTerm.toLowerCase()} ${dirSingularPlural.isAre} responsible for the preparation and fair presentation of these financial statements in accordance with International Financial Reporting Standards for Small and Medium-sized Entities and the requirements of the Companies Act of South Africa, and for such internal control as the ${pluralTerm.toLowerCase()} determine necessary to enable the preparation of financial statements that are free from material misstatement, whether due to fraud or error.</p>
     <h3>Independent Compiler's Responsibility</h3>
     <p>We performed this compilation engagement in accordance with <em>International Standard on Related Services 4410 (Revised), Compilation Engagements.</em> This Standard requires that we comply with quality control standards and relevant ethical requirements, including ethical principles of integrity, objectivity, professional competence and due care.</p>
     <p>A compilation engagement involves applying expertise in accounting and financial reporting to assist management in preparing and presenting financial information. A compilation engagement does not involve gathering evidence for the purpose of expressing an opinion or a review conclusion. Accordingly, we do not express an audit opinion or a review conclusion on these financial statements.</p>
-    <div class="compiler-block">
-      <p>H/L VAN DER MERWE</p>
-      <p>CHARTERED ACCOUNTANT (SA)</p>
-      <p>STANDERTON</p>
-      <p>${dateSigned}</p>
-    </div>
+    ${compilerBlock(compilerSigner, dateSigned)}
     <div class="page-number">${pg3}</div>
   </div>`;
 
@@ -790,7 +868,7 @@ function generateDoc() {
       <div class="co-reg">(Registration Number ${reg})</div>
     </div>
     <h2>${pluralTerm}' Report</h2>
-    <p>${bodyTerm} have pleasure in presenting ${pronoun} report for the year ended ${yearEnd}.</p>
+    <p>${bodyTerm} ${dirCount === 1 ? 'has' : 'have'} pleasure in presenting ${pronoun} report for the year ended ${yearEnd}.</p>
     <p class="underline-heading">Business Activities and General Review of Operations</p>
     <p>The main business of the company is ${nature} and income of the company is generated mainly from ${income}.</p>
     <p>No material fact or circumstance has occurred since the financial position and the date of this report.</p>
@@ -799,8 +877,8 @@ function generateDoc() {
     <p>${shareCapitalSentence}</p>
     <p>${dividendSentence}</p>
     <p>${fixedAssetsSentence}</p>
-    <p>The company realised a profit/loss after tax of R ${profitLoss} for the year ended ${yearEnd} (${prevYearEnd} — profit/loss of R ${prevProfitLoss}). ${bodyTerm} expect that the company will ${outlookText}. Accordingly the annual financial statements of the company are prepared on the basis of accounting policies applicable to a going concern.</p>
-    <p>The ${pluralTerm.toLowerCase()} of the company are: ${dirList}</p>
+    <p>The company realised a profit/loss after tax of R&nbsp;${profitLoss} for the year ended ${yearEnd} (${prevYearEnd} — profit/loss of R&nbsp;${prevProfitLoss}). ${bodyTerm} expect that the company will ${outlookText}. Accordingly the annual financial statements of the company are prepared on the basis of accounting policies applicable to a going concern.</p>
+    <p>The ${pluralTerm.toLowerCase()} of the company ${dirSingularPlural.isAre}: ${dirList}</p>
     <p>The postal address is: ${postal}</p>
     <p>The registered address is: ${regAddr}</p>
     <p>${parentSentence}</p>
