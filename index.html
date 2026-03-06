@@ -434,28 +434,50 @@
     flex-direction: column;
     gap: 6px;
   }
-  .policy-subitem {
+  .policy-subitem-row {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    overflow: hidden;
+  }
+  .policy-subitem-row:has(input:checked) {
+    border-color: var(--gold);
+  }
+  .policy-subitem-check {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 12px;
     color: var(--ink);
     cursor: pointer;
-    padding: 5px 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--white);
-    transition: all 0.12s;
+    padding: 6px 8px;
   }
-  .policy-subitem:has(input:checked) {
-    border-color: var(--gold);
-    background: #fffbf0;
-    font-weight: 500;
-  }
-  .policy-subitem input[type=checkbox] {
+  .policy-subitem-check input[type=checkbox] {
     accent-color: var(--gold);
     width: 14px; height: 14px;
     flex-shrink: 0;
+  }
+  .policy-subitem-rate {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px 8px 30px;
+    border-top: 1px dashed var(--border);
+    background: #fffbf0;
+  }
+  .policy-subitem-rate select {
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--ink);
+  }
+  .policy-subitem-rate input[type=text] {
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
   }
 
   /* ── PRINT ── */
@@ -814,12 +836,12 @@ const accountingPolicies = [
     originalNum: '1.1',
     text: 'Property, plant and equipment are stated at cost, including the cost to prepare the assets for their intended use, less accumulated depreciation. Property, plant and equipment, with the exception of land and buildings and personal assets, are depreciated in equal annual amounts to write off each asset over its estimated useful economic life. Investment properties are not depreciated. Other assets are depreciated at the following rates:',
     subItems: [
-      { id: 'pol_ppe_farming',   label: 'Farming Equipment',    rate: '10%' },
-      { id: 'pol_ppe_vehicles',  label: 'Vehicles',             rate: '20%' },
-      { id: 'pol_ppe_medical',   label: 'Medical Equipment',    rate: '20%' },
-      { id: 'pol_ppe_furniture', label: 'Furniture and Fittings', rate: '16.66%' },
-      { id: 'pol_ppe_office',    label: 'Office Equipment',     rate: '20%' },
-      { id: 'pol_ppe_computer',  label: 'Computer Equipment',   rate: '33.33%' },
+      { id: 'pol_ppe_farming',   label: 'Farming Equipment',      rateOptions: ['10%','20%','30%','33%','50%','Other'] },
+      { id: 'pol_ppe_vehicles',  label: 'Vehicles',               rateOptions: ['20%','30%','33%','50%','10%','Other'] },
+      { id: 'pol_ppe_medical',   label: 'Medical Equipment',      rateOptions: ['20%','30%','33%','50%','10%','Other'] },
+      { id: 'pol_ppe_furniture', label: 'Furniture and Fittings', rateOptions: ['16.66%','20%','30%','33%','50%','10%','Other'] },
+      { id: 'pol_ppe_office',    label: 'Office Equipment',       rateOptions: ['20%','30%','33%','50%','10%','Other'] },
+      { id: 'pol_ppe_computer',  label: 'Computer Equipment',     rateOptions: ['33%','33.33%','50%','20%','10%','Other'] },
     ],
     textSuffix: 'Land and buildings are valuated from time to time to ensure that the net realisable value of these assets still exceeds the original cost of the property. Should the realisable value be less than the original cost the assets will be revalued to the realisable value.'
   },
@@ -857,7 +879,12 @@ const accountingPolicies = [
     id: 'pol_biological',
     label: '1.6 Biological Assets',
     originalNum: '1.6',
-    text: 'Biological assets which consists of different components are accounted for as follows:<br><br><strong>1.6.1 Harvest on Land</strong><br>Harvest on land is shown at director\'s/trustee\'s/member\'s valuation.<br><br><strong>1.6.2 Livestock on Hand</strong><br>Livestock on hand is shown at the net realisable value at year end, which is determined by the owners/directors/trustees/members.'
+    text: 'Biological assets which consists of different components are accounted for as follows:',
+    subItems: [
+      { id: 'pol_bio_harvest',   label: '1.6.1 Harvest on Land',   bodyText: "Harvest on land is shown at director's/trustee's/member's valuation." },
+      { id: 'pol_bio_livestock', label: '1.6.2 Livestock on Hand', bodyText: 'Livestock on hand is shown at the net realisable value at year end, which is determined by the owners/directors/trustees/members.' },
+    ],
+    isBio: true
   },
   {
     id: 'pol_inventory',
@@ -958,14 +985,36 @@ function buildPolicyChecklist() {
     div.className = 'policy-item';
     div.id = 'pi-' + p.id;
 
-    // Build sub-items HTML if present
     let subHtml = '';
-    if (p.subItems) {
+    if (p.subItems && !p.isBio) {
+      // PPE-style: checkbox + label + rate dropdown + optional custom input
+      subHtml = `<div class="policy-subitems">` +
+        p.subItems.map(s => {
+          const opts = s.rateOptions.map(r =>
+            `<option value="${r}">${r}</option>`
+          ).join('');
+          return `
+          <div class="policy-subitem-row" id="row-${s.id}">
+            <label class="policy-subitem-check">
+              <input type="checkbox" id="${s.id}" onchange="onSubItemChange('${s.id}'); liveUpdate()">
+              <span>${s.label}</span>
+            </label>
+            <div class="policy-subitem-rate" id="rate-wrap-${s.id}" style="display:none;">
+              <select id="sel-${s.id}" onchange="onRateSelect('${s.id}'); liveUpdate()">
+                ${opts}
+              </select>
+              <input type="text" id="custom-${s.id}" placeholder="Enter %" style="display:none;width:80px;margin-left:6px;" oninput="liveUpdate()">
+            </div>
+          </div>`;
+        }).join('') +
+        `</div>`;
+    } else if (p.subItems && p.isBio) {
+      // Biological assets: simple checkboxes with labels
       subHtml = `<div class="policy-subitems">` +
         p.subItems.map(s => `
-          <label class="policy-subitem">
+          <label class="policy-subitem-check">
             <input type="checkbox" id="${s.id}" onchange="liveUpdate()">
-            <span>${s.label} — ${s.rate}</span>
+            <span>${s.label}</span>
           </label>`).join('') +
         `</div>`;
     }
@@ -979,6 +1028,22 @@ function buildPolicyChecklist() {
     `;
     container.appendChild(div);
   });
+}
+
+function onSubItemChange(sid) {
+  const cb = document.getElementById(sid);
+  const rateWrap = document.getElementById('rate-wrap-' + sid);
+  if (rateWrap) rateWrap.style.display = cb.checked ? 'flex' : 'none';
+}
+
+function onRateSelect(sid) {
+  const sel = document.getElementById('sel-' + sid);
+  const custom = document.getElementById('custom-' + sid);
+  if (sel.value === 'Other') {
+    custom.style.display = 'inline-block';
+  } else {
+    custom.style.display = 'none';
+  }
 }
 
 function togglePolicy(id) {
@@ -1470,29 +1535,45 @@ function generateDoc() {
   });
 
   // Page header helper for notes pages
-  function notesPageHeader() {
+  function notesPageHeader(isContinued) {
     return `
     <div class="page-header">
       <div class="co-name">${coUpper}</div>
       <div class="co-reg">(Registration Number ${reg})</div>
     </div>
-    <h2>NOTES FOR THE YEAR ENDED ${yearEnd.toUpperCase()}</h2>`;
+    <h2>NOTES FOR THE YEAR ENDED ${yearEnd.toUpperCase()}${isContinued ? ' — CONTINUED' : ''}</h2>`;
   }
 
-  // Build text for a policy entry (handle PPE sub-items)
+  // Build text for a policy entry
   function buildPolicyText(p) {
     if (p.id === 'pol_ppe' && p.subItems) {
       const checkedSubs = p.subItems.filter(s => {
         const cb = document.getElementById(s.id);
         return cb && cb.checked;
       });
-      let rateTable = '';
+      let rateLines = '';
       if (checkedSubs.length > 0) {
-        rateTable = '<br>' + checkedSubs.map(s => `${s.label} — ${s.rate}`).join('<br>') + '<br><br>';
+        rateLines = '<br>' + checkedSubs.map(s => {
+          const sel = document.getElementById('sel-' + s.id);
+          const custom = document.getElementById('custom-' + s.id);
+          let rate = sel ? sel.value : '';
+          if (rate === 'Other') rate = (custom && custom.value.trim()) ? custom.value.trim() : 'Other';
+          return `${s.label} — ${rate}`;
+        }).join('<br>') + '<br><br>';
       } else {
-        rateTable = '<br>';
+        rateLines = '<br>';
       }
-      return (p.text || '') + rateTable + (p.textSuffix || '');
+      return (p.text || '') + rateLines + (p.textSuffix || '');
+    }
+    if (p.id === 'pol_biological' && p.subItems) {
+      const checkedBio = p.subItems.filter(s => {
+        const cb = document.getElementById(s.id);
+        return cb && cb.checked;
+      });
+      if (!checkedBio.length) return p.text || '';
+      return (p.text || '') + '<br><br>' + checkedBio.map(s =>
+        `<strong>${s.label}</strong><br>${s.bodyText}`
+      ).join('<br><br>');
     }
     return p.text || '';
   }
@@ -1501,6 +1582,7 @@ function generateDoc() {
   let policyPages = '';
   let currentPageItems = [];
   let pgNum = 5;
+  let firstPolicyPage = true;
 
   function flushPolicyPage(items, pageNum) {
     if (!items.length) return '';
@@ -1509,9 +1591,11 @@ function generateDoc() {
         <p class="underline-heading">${p.displayNum}. ${p.label.replace(/^[\d.]+\s*/, '')}</p>
         <p>${buildPolicyText(p)}</p>
       </div>`).join('');
+    const header = notesPageHeader(!firstPolicyPage);
+    firstPolicyPage = false;
     return `
   <div class="doc-page">
-    ${notesPageHeader()}
+    ${header}
     ${content}
     <div class="page-number">${pageNum}</div>
   </div>`;
